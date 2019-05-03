@@ -16,14 +16,18 @@ from tqdm import tqdm
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
-def load_dataset(path):
+def load_sparsed_dataset(path):
     data = load_files(path)
     return np.array(data['filenames']), data['target']
 
-def load_datasets(train_path, valid_path, test_path):
-  train_files, train_targets = load_dataset(train_path)
-  valid_files, valid_targets = load_dataset(valid_path)
-  test_files, test_targets = load_dataset(test_path)
+def load_categorical_dataset(path):
+    data = load_files(path)
+    return np.array(data['filenames']), np_utils.to_categorical(np.array(data['target']), 133)
+
+def load_datasets(train_path, valid_path, test_path, is_categorical):
+  train_files, train_targets = load_categorical_dataset(train_path) if load_categorical_dataset else load_dataset(train_path)
+  valid_files, valid_targets = load_categorical_dataset(valid_path) if load_categorical_dataset else load_dataset(valid_path)
+  test_files, test_targets = load_categorical_dataset(test_path) if load_categorical_dataset else load_dataset(test_path)
 
   dog_names = [item[18:-1] for item in sorted(glob(train_path + "/*/"))]
 
@@ -42,8 +46,8 @@ def load_targets_datasets(train_path, valid_path, test_path):
     train_targets = load_targets_dataset(train_path)
     valid_targets = load_targets_dataset(valid_path)
     test_files, test_targets = load_dataset(test_path)
-    test_tensors = paths_to_tensor(test_files).astype('float32')/255
-    return train_targets, valid_targets, test_targets, test_tensors
+
+    return train_targets, valid_targets, test_targets
 
 def path_to_tensor(img_path):
     # loads RGB image as PIL.Image.Image type
