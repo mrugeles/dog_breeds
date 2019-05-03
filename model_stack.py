@@ -12,7 +12,7 @@ from keras.models import Sequential
 from keras.callbacks import ModelCheckpoint
 
 
-def fit_model(model, train_tensors, valid_tensors, valid_targets, model_file):
+def fit_model(model, train_tensors, train_targets, valid_tensors, valid_targets, model_file, class_weights):
   model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['sparse_categorical_accuracy'])
   epochs = 100
 
