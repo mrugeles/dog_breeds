@@ -25,9 +25,9 @@ def load_categorical_dataset(path):
     return np.array(data['filenames']), np_utils.to_categorical(np.array(data['target']), 133)
 
 def load_datasets(train_path, valid_path, test_path, is_categorical):
-  train_files, train_targets = load_categorical_dataset(train_path) if load_categorical_dataset else load_dataset(train_path)
-  valid_files, valid_targets = load_categorical_dataset(valid_path) if load_categorical_dataset else load_dataset(valid_path)
-  test_files, test_targets = load_categorical_dataset(test_path) if load_categorical_dataset else load_dataset(test_path)
+  train_files, train_targets = load_categorical_dataset(train_path) if load_categorical_dataset else load_sparsed_dataset(train_path)
+  valid_files, valid_targets = load_categorical_dataset(valid_path) if load_categorical_dataset else load_sparsed_dataset(valid_path)
+  test_files, test_targets = load_categorical_dataset(test_path) if load_categorical_dataset else load_sparsed_dataset(test_path)
 
   dog_names = [item[18:-1] for item in sorted(glob(train_path + "/*/"))]
 
