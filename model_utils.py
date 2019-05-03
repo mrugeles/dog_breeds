@@ -4,10 +4,10 @@ import numpy as np
 from keras.preprocessing.image import ImageDataGenerator, img_to_array, load_img
 
 
-def plot_history(history):
+def plot_history(history, acc, val_acc):
   # Accuracy
-  plt.plot(history.history['sparse_categorical_accuracy'])
-  plt.plot(history.history['val_sparse_categorical_accuracy'])
+  plt.plot(history.history[acc])
+  plt.plot(history.history[val_acc])
   plt.title('model accuracy')
   plt.ylabel('accuracy')
   plt.xlabel('epoch')
