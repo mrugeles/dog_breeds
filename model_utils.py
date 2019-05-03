@@ -25,8 +25,7 @@ def plot_history(history, acc, val_acc):
 def eval_model(model, weights, test_tensors, test_targets):
   model.load_weights(weights)
   predictions = [np.argmax(model.predict(np.expand_dims(tensor, axis=0))) for tensor in test_tensors]
-  test_accuracy = 100*np.sum(np.array(predictions)==test_targets)/len(predictions)
-  print(test_accuracy)
+  test_accuracy = 100*np.sum(np.array(predictions)==np.argmax(test_targets, axis=1))/len(predictions)
   return test_accuracy
 
 
