@@ -29,7 +29,7 @@ def fit_model(model, train_tensors, train_targets, valid_tensors, valid_targets,
             verbose=0)
   return model
 
-def fit_model_with_generators(model, epochs, train_generator, validation_generator, class_weights):
+def fit_model_with_generators(model, epochs, model_file, train_generator, validation_generator, class_weights):
     from keras.optimizers import SGD
     model.compile(optimizer=SGD(lr=0.0001, momentum=0.9), loss='sparse_categorical_crossentropy', metrics=['sparse_categorical_accuracy'])
     batch_size = 16
