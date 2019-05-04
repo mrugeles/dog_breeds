@@ -33,8 +33,8 @@ def fit_model_with_generators(model, epochs, train_generator, validation_generat
     from keras.optimizers import SGD
     model.compile(optimizer=SGD(lr=0.0001, momentum=0.9), loss='sparse_categorical_crossentropy', metrics=['sparse_categorical_accuracy'])
     batch_size = 16
-    # we train our model again (this time fine-tuning the top 2 inception blocks
-    # alongside the top Dense layers
+    checkpointer = ModelCheckpoint(filepath=model_file,
+                                 verbose=0, save_best_only=True)
     history = model.fit_generator(
             train_generator,
             class_weight = class_weights,
