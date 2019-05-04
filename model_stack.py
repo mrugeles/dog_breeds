@@ -30,19 +30,19 @@ def fit_model(model, train_tensors, train_targets, valid_tensors, valid_targets,
   return model
 
 def fit_model_with_generators(model, train_generator, validation_generator, class_weights):
-  model.compile(optimizer=SGD(lr=0.0001, momentum=0.9), loss='sparse_categorical_crossentropy', metrics=['sparse_categorical_accuracy'])
+    model.compile(optimizer=SGD(lr=0.0001, momentum=0.9), loss='sparse_categorical_crossentropy', metrics=['sparse_categorical_accuracy'])
 
-# we train our model again (this time fine-tuning the top 2 inception blocks
-# alongside the top Dense layers
-history = model.fit_generator(
-        train_generator,
-        class_weight = class_weights,
-        steps_per_epoch=2000 // batch_size,
-        epochs=200,
-        validation_data=validation_generator,
-        validation_steps=800 // batch_size,
-      callbacks=[checkpointer], verbose=1)
-  return model
+    # we train our model again (this time fine-tuning the top 2 inception blocks
+    # alongside the top Dense layers
+    history = model.fit_generator(
+            train_generator,
+            class_weight = class_weights,
+            steps_per_epoch=2000 // batch_size,
+            epochs=200,
+            validation_data=validation_generator,
+            validation_steps=800 // batch_size,
+          callbacks=[checkpointer], verbose=1)
+    return model
 
 # load models from file
 def load_all_models(n_models):
