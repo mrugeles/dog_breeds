@@ -42,7 +42,7 @@ def fit_model_with_generators(model, epochs, model_file, train_generator, valida
             epochs=epochs,
             validation_data=validation_generator,
             validation_steps=800 // batch_size,
-          callbacks=[checkpointer], verbose=1)
+          callbacks=[checkpointer], verbose=0)
     return model
 
 # load models from file
