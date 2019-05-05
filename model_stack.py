@@ -1,3 +1,5 @@
+import model_utils
+
 from sklearn.datasets.samples_generator import make_blobs
 from sklearn.metrics import accuracy_score
 from sklearn.linear_model import LogisticRegression
@@ -87,7 +89,7 @@ def tune_stacked_model(clf, parameters, members, X_train, y_train, X_test, y_tes
   X_train = stacked_dataset(members, X_train)
   X_test = stacked_dataset(members, X_test)
 
-  best_clf, default_score, tuned_score = tune_classifier(clf, parameters, X_train, X_test, y_train, y_test)
+  best_clf, default_score, tuned_score = model_utils.tune_classifier(clf, parameters, X_train, X_test, y_train, y_test)
   return best_clf, default_score, tuned_score
 
 # make a prediction with the stacked model
