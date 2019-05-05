@@ -46,11 +46,11 @@ def fit_model_with_generators(model, epochs, model_file, train_generator, valida
     return model
 
 # load models from file
-def load_all_models(n_models):
+def load_all_models(n_models, folder):
 	all_models = list()
 	for i in range(n_models):
 		# define filename for this ensemble
-		filename = 'models/model_' + str(i + 1) + '.h5'
+		filename = folder + '/model_' + str(i + 1) + '.h5'
 		# load model from file
 		model = load_model(filename)
 		# add to list of members
