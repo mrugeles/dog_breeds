@@ -82,6 +82,14 @@ def fit_stacked_model(members, inputX, inputy):
   model.fit(stackedX, inputy)
   return model
 
+def tune_stacked_model(clf, parameters, members, X_train, X_test, y_train, y_test):
+    # create dataset using ensemble
+  X_train = stacked_dataset(members, X_train)
+  X_train = stacked_dataset(members, X_train)
+
+  best_clf, default_score, tuned_score, cnf_matrix = model_utils.tune_classifier(clf, parameters, X_train, X_test, y_train, y_test)
+  return best_clf, default_score, tuned_score, cnf_matrix
+
 # make a prediction with the stacked model
 def stacked_prediction(members, model, inputX):
 	# create dataset using ensemble
