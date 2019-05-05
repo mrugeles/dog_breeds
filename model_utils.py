@@ -109,20 +109,17 @@ def tune_classifier(clf, parameters, X_train, X_test, y_train, y_test):
   from sklearn.metrics import make_scorer
   from sklearn.model_selection import GridSearchCV
   from sklearn.ensemble import ExtraTreesClassifier
+  from sklearn.metrics import accuracy_score
 
-  c, r = y_train.shape
-  labels = y_train.values.reshape(c,)
+  scorer = make_scorer(accuracy_score)
 
-  scorer = make_scorer(fbeta_score, beta=2)
-  grid_obj = GridSearchCV(clf, param_grid=parameters,  scoring=scorer, iid=False)
-  grid_fit = grid_obj.fit(X_train, labels)
+  grid_obj = GridSearchCV(clf, cv = 4, param_grid=parameters,  scoring=scorer, iid=False)
+  grid_fit = grid_obj.fit(X_train, y_train)
   best_clf = grid_fit.best_estimator_
-  predictions = (clf.fit(X_train, labels)).predict(X_test)
+  predictions = (clf.fit(X_train, y_train)).predict(X_test)
   best_predictions = best_clf.predict(X_test)
 
-  default_score = fbeta_score(y_test, predictions, beta = 2)
-  tuned_score = fbeta_score(y_test, best_predictions, beta = 2)
+  default_score = 100*accuracy_score(y_test, predictions)
+  tuned_score = 100*accuracy_score(y_test, best_predictions)
 
-  cnf_matrix = confusion_matrix(y_test, best_predictions)
-
-  return best_clf, default_score, tuned_score, cnf_matrix
+  return best_clf, default_score, tuned_score
