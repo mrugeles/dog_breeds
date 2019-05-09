@@ -13,6 +13,7 @@ def plot_history(history, acc, val_acc):
   axs[0].set_title('model accuracy')
   axs[0].set_ylabel('accuracy')
   axs[0].set_xlabel('epoch')
+  axs[0].legend(['train', 'test'], loc='upper left')
 
   # Loss
   axs[1].plot(history.history['loss'])
@@ -20,6 +21,7 @@ def plot_history(history, acc, val_acc):
   axs[1].set_title('model loss')
   axs[1].set_ylabel('loss')
   axs[1].set_xlabel('epoch')
+  axs[1].legend(['train', 'test'], loc='upper left')
   plt.show()
 
 def eval_model(model, weights, test_tensors, test_targets, is_categorical = True):
