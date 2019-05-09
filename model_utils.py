@@ -5,7 +5,7 @@ from keras.preprocessing.image import ImageDataGenerator, img_to_array, load_img
 
 
 def plot_history(history, acc, val_acc):
-  fig, axs = plt.subplots(1, 2, figsize=(15, 5), sharey=True)
+  fig, axs = plt.subplots(1, 2, figsize=(15, 5))
 
   # Accuracy
   axs[0].plot(history.history[acc])
