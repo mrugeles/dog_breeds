@@ -5,21 +5,21 @@ from keras.preprocessing.image import ImageDataGenerator, img_to_array, load_img
 
 
 def plot_history(history, acc, val_acc):
+  fig, axs = plt.subplots(1, 2, figsize=(15, 5), sharey=True)
+
   # Accuracy
-  plt.plot(history.history[acc])
-  plt.plot(history.history[val_acc])
-  plt.title('model accuracy')
-  plt.ylabel('accuracy')
-  plt.xlabel('epoch')
-  plt.legend(['train', 'test'], loc='upper left')
-  plt.show()
+  axs[0].plot(history.history[acc])
+  axs[0].plot(history.history[val_acc])
+  axs[0].set_title('model accuracy')
+  axs[0].set_ylabel('accuracy')
+  axs[0].set_xlabel('epoch')
+
   # Loss
-  plt.plot(history.history['loss'])
-  plt.plot(history.history['val_loss'])
-  plt.title('model loss')
-  plt.ylabel('loss')
-  plt.xlabel('epoch')
-  plt.legend(['train', 'test'], loc='upper left')
+  axs[1].plot(history.history['loss'])
+  axs[1].plot(history.history['val_loss'])
+  axs[1].set_title('model loss')
+  axs[1].set_ylabel('loss')
+  axs[1].set_xlabel('epoch')
   plt.show()
 
 def eval_model(model, weights, test_tensors, test_targets, is_categorical = True):
