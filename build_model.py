@@ -39,7 +39,7 @@ def main():
 
     best_model = models.sort_values(by=['Accuracy'], ascending = False)
     best_model = best_model.head(1)[['Model']].values[0][0]
-    shutil.move(best_model, APP_PATH + best_model)
+    shutil.move(best_model, APP_PATH + MODEL_FILE)
 
 if __name__ == '__main__':
     main()
