@@ -3,6 +3,11 @@ import numpy as np
 
 from keras.preprocessing.image import ImageDataGenerator, img_to_array, load_img
 
+from keras.layers import Conv2D, MaxPooling2D, GlobalAveragePooling2D
+from keras.layers import Dropout, Flatten, Dense
+from keras.models import Sequential
+from keras.callbacks import ModelCheckpoint
+
 
 def plot_history(history, acc, val_acc):
   fig, axs = plt.subplots(1, 2, figsize=(15, 5))
@@ -90,38 +95,53 @@ def get_class_weights():
 
     dict_class_weights = dict(zip(targets, class_weights))
 
-###
-#      This method use grid search to tune a classifier.
-#
-#      Args:
-#       clf (classifier): Classifier to tune.
-#       parameters (dict): Clasiffier parameters.
-#       X_train: (dataset): Features dataset to train the model.
-#       y_train: (dataset): Targe feature dataset to train the model.
-#       X_test: (dataset): Features dataset to test the model.
-#       y_test: (dataset): Targe feature dataset to test the model.
-#      Returns:
-#       best_clf (classifier): Classifier with the best score.
-#       default_score (float): Classifier score before being tuned.
-#       tuned_score (float): Classifier score after being tuned.
-#       cnf_matrix (float): Confusion matrix.
-###
-def tune_classifier(clf, parameters, X_train, X_test, y_train, y_test):
+def get_bottleneck_features(bottleneck_file):
 
-  from sklearn.metrics import make_scorer
-  from sklearn.model_selection import GridSearchCV
-  from sklearn.ensemble import ExtraTreesClassifier
-  from sklearn.metrics import accuracy_score
+  bottleneck_features = np.load(bottleneck_file)
+  train = bottleneck_features['train']
+  valid = bottleneck_features['valid']
+  test = bottleneck_features['test']
+  return train, valid, test
 
-  scorer = make_scorer(accuracy_score)
 
-  grid_obj = GridSearchCV(clf, cv = 4, param_grid=parameters,  scoring=scorer, iid=False)
-  grid_fit = grid_obj.fit(X_train, y_train)
-  best_clf = grid_fit.best_estimator_
-  predictions = (clf.fit(X_train, y_train)).predict(X_test)
-  best_predictions = best_clf.predict(X_test)
+def get_model_Xception(train_features, train_targets, shape):
 
-  default_score = 100*accuracy_score(y_test, predictions)
-  tuned_score = 100*accuracy_score(y_test, best_predictions)
 
-  return best_clf, default_score, tuned_score
+  from keras.callbacks import ModelCheckpoint
+  model = Sequential()
+
+  model.add(Conv2D(filters=2048, kernel_size=2, padding='same', activation='relu', kernel_initializer='random_uniform', input_shape=shape))
+  model.add(Conv2D(filters=2048, kernel_size=2, padding='same', activation='relu'))
+  model.add(MaxPooling2D(pool_size=2))
+
+  model.add(Dropout(0.05))
+  model.add(GlobalAveragePooling2D(input_shape=train_targets.shape[1:]))
+  model.add(Dense(133, activation='softmax'))
+
+  return model
+
+
+def train_model(model, epochs, train_features, valid_features, train_targets, valid_targets, weights_file):
+  model.compile(optimizer='sgd', loss='categorical_crossentropy', metrics=['accuracy'])
+
+  checkpointer = ModelCheckpoint(filepath=weights_file, verbose=1, save_best_only=True)
+
+  history = model.fit(
+      train_features,
+      train_targets,
+      validation_data=(valid_features, valid_targets),
+      epochs=epochs,
+      batch_size=16,
+      callbacks=[checkpointer],
+      verbose=1)
+  return model, history
+
+def build_bottleneck_model(bottleneck, n, epochs, train_targets, valid_targets):
+  bottleneck_file = bottleneck + '.npz'
+  weights_file = 'weights.'+bottleneck+'_'+str(n)+'.hdf5'
+  train_features, valid_features, test_features = get_bottleneck_features(bottleneck_file)
+
+  input_shape = (train_features.shape[1], train_features.shape[2], train_features.shape[3])
+  model = get_model_Xception(train_features, train_targets, input_shape)
+  model, history = train_model(model, epochs, train_features, valid_features, train_targets, valid_targets, weights_file)
+  return model, history, test_features

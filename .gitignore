@@ -1,0 +1,4 @@
+__pycache__/**
+dogImages/**
+*.hdf5
+*.npz
