@@ -91,11 +91,6 @@
                           </div>
                         </div>
                       </form>
-                        {% if query != ''%}
-                      <hr />
-                      <h4 class="text-center">MESSAGE</h4>
-                      <p class="text-center"><i>{{query}}</i></p>
-                      {% endif %}
                     </div>
                   </div>
                 </div>
@@ -104,7 +99,7 @@
               {% if file_path != '':%}
               <h1 class="text-center">Our best prediction</h1>
               <h3 class="text-center">Probability: {{ "%.2f"|format(best_prediction_probability) }} %</h3>
-              
+
               <div class="row">
                 <div class="col-xl-6 col-md-6">
                   <h3 class="text-center">Uploaded image</h3>

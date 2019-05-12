@@ -1,4 +1,5 @@
 __pycache__/**
 dogImages/**
+app/static/uploads/*
 *.hdf5
 *.npz
