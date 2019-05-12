@@ -38,11 +38,11 @@ class ModelUtilities:
         predicted_vector = self.model.predict(bottleneck_feature)
 
         probability = np.amax(predicted_vector)
-        breed_index = np.argmax(predicted_vector) + 1
+        breed_index = np.argmax(predicted_vector)
 
         breed = self.DOG_NAMES[breed_index][4:]
         is_dog = False if(probability < 0.5) else True
-        return breed, breed_index, is_dog
+        return breed, breed_index + 1, is_dog
 
     def face_detector(self, img_path):
         img = cv2.imread(img_path)

@@ -97,9 +97,8 @@
 
               </div>
               {% if file_path != '':%}
-              <h2 class="text-center">Our best prediction: Is a {{prediction.name.lower()}} image.</h2>
-                {% if prediction.name == 'DOG':%}
-              <h2 class="text-center">Breed: {{best_prediction_breed}}</h2>
+              <h3 class="text-center">Our best prediction: Is a {{prediction.name.lower()}} image.</h3>
+              <h3 class="text-center">Breed: {{best_prediction_breed}}</h3>
               <div class="row">
                 <div class="col-xl-6 col-md-6">
                   <h3 class="text-center">Uploaded image</h3>
@@ -110,17 +109,6 @@
                     <img src="{{ url_for('static', filename='breeds_samples/'+breed_code+'/'+breed_code+'.jpg') }}" alt="{{best_prediction_breed}}" class="img-thumbnail mx-auto d-block">
                 </div>
             </div>
-              {%else: %}
-              <div class="row">
-                <div class="col-xl-12 col-md-12">
-                  <h3 class="text-center">Uploaded image</h3>
-                    <img src="{{ url_for('static', filename=file_path) }}" alt="" class="img-thumbnail mx-auto d-block">
-                </div>
-
-            </div>
-                {% endif %}
-
-
             {% endif %}
             </div>
 
