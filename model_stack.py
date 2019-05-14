@@ -48,7 +48,6 @@ def fit_model(model, train_tensors, train_targets, valid_tensors, valid_targets,
     model.fit(train_tensors,
             train_targets,
             validation_data=(valid_tensors, valid_targets),
-            #class_weight = class_weights,
             epochs=epochs,
             batch_size=32,
             callbacks=[checkpointer],
@@ -108,16 +107,13 @@ def load_all_models(n_models, folder):
     all_models: array
         Loaded models.
     """
-	all_models = list()
-	for i in range(n_models):
-		# define filename for this ensemble
-		filename = folder + '/model_' + str(i + 1) + '.h5'
-		# load model from file
-		model = load_model(filename)
-		# add to list of members
-		all_models.append(model)
-		print('>loaded %s' % filename)
-	return all_models
+    all_models = list()
+    for i in range(n_models):
+    	filename = folder + '/model_' + str(i + 1) + '.h5'
+    	model = load_model(filename)
+    	all_models.append(model)
+    	print('>loaded %s' % filename)
+    return all_models
 
 def stacked_dataset(members, inputX):
     """ Stack predictions from models to create a new dataset
@@ -135,18 +131,14 @@ def stacked_dataset(members, inputX):
     """
     stackX = None
     for model in members:
-    # make prediction
-    yhat = model.predict(inputX, verbose=0)
-    # stack predictions into [rows, members, probabilities]
+        yhat = model.predict(inputX, verbose=0)
     if stackX is None:
-      stackX = yhat
+        stackX = yhat
     else:
-      stackX = dstack((stackX, yhat))
-    # flatten predictions to [rows, members x probabilities]
+        stackX = dstack((stackX, yhat))
     stackX = stackX.reshape((stackX.shape[0], stackX.shape[1]*stackX.shape[2]))
     return stackX
 
-# fit a model based on the outputs from the ensemble members
 def fit_stacked_model(members, inputX, inputy):
     """ Fit meta model from stacked dataset.
     Parameters
@@ -162,9 +154,7 @@ def fit_stacked_model(members, inputX, inputy):
     model: Model
         Trained meta model.
     """
-    # create dataset using ensemble
     stackedX = stacked_dataset(members, inputX)
-    # fit standalone model
     model = LogisticRegression(random_state = 9034)
     model.fit(stackedX, inputy)
     return model
@@ -202,7 +192,6 @@ def tune_stacked_model(clf, parameters, members, X_train, y_train, X_test, y_tes
     best_clf, default_score, tuned_score = model_utils.tune_classifier(clf, parameters, X_train, X_test, y_train, y_test)
     return best_clf, default_score, tuned_score
 
-# make a prediction with the stacked model
 def stacked_prediction(members, model, inputX):
     """ Predict from meta model
     Parameters
@@ -218,8 +207,6 @@ def stacked_prediction(members, model, inputX):
     yhat: array
         Meta model's predicions.
     """
-	# create dataset using ensemble
-	stackedX = stacked_dataset(members, inputX)
-	# make a prediction
-	yhat = model.predict(stackedX)
-	return yhat
+    stackedX = stacked_dataset(members, inputX)
+    yhat = model.predict(stackedX)
+    return yhat
