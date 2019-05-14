@@ -192,11 +192,11 @@ def show_target_distribution(path):
     path: string
         Path to the root folder containing the training data.
     """
-  path_from = len(path) + 1
-  path_to = path_from + 3
-  name_position = path_to + 1
-  folders = [(int(path[path_from:path_to]), path[name_position:-1], path, len([f for f in os.listdir(path)if os.path.isfile(os.path.join(path, f))])) for path in sorted(glob(path + '/*/'))]
-  folders = pd.DataFrame(folders, columns = ['target', 'breed', 'folder', 'count'])
+    path_from = len(path) + 1
+    path_to = path_from + 3
+    name_position = path_to + 1
+    folders = [(int(path[path_from:path_to]), path[name_position:-1], path, len([f for f in os.listdir(path)if os.path.isfile(os.path.join(path, f))])) for path in sorted(glob(path + '/*/'))]
+    folders = pd.DataFrame(folders, columns = ['target', 'breed', 'folder', 'count'])
 
   folders[['breed', 'count']].plot.bar(x = 'breed', figsize = (20, 5))
 
