@@ -15,13 +15,37 @@ from keras.callbacks import ModelCheckpoint
 
 
 def fit_model(model, train_tensors, train_targets, valid_tensors, valid_targets, model_file, class_weights):
-  model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['sparse_categorical_accuracy'])
-  epochs = 100
+    """ Generic function to fit a model with tensors created from images loaded from file system.
 
-  checkpointer = ModelCheckpoint(filepath=model_file,
+    Parameters
+    ----------
+    model: Sequential
+        Model to fit.
+    train_tensors: array
+        Training features.
+    train_targets: array
+        Training targets.
+    valid_tensors: array
+        Validation features.
+    valid_targets: array
+        Validation targes.
+    model_file: string
+        Path to store the best model.
+    class_weights: array
+        Array of balanced class weights.
+
+    Returns
+    -------
+    model: Sequential
+        Trained model.
+    """
+    model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['sparse_categorical_accuracy'])
+    epochs = 100
+
+    checkpointer = ModelCheckpoint(filepath=model_file,
                                verbose=0, save_best_only=True)
 
-  model.fit(train_tensors,
+    model.fit(train_tensors,
             train_targets,
             validation_data=(valid_tensors, valid_targets),
             #class_weight = class_weights,
@@ -29,9 +53,32 @@ def fit_model(model, train_tensors, train_targets, valid_tensors, valid_targets,
             batch_size=32,
             callbacks=[checkpointer],
             verbose=0)
-  return model
+    return model
 
 def fit_model_with_generators(model, epochs, model_file, train_generator, validation_generator, class_weights):
+    """ Generic function to fit a model with image generatos
+    Parameters
+    ----------
+    model: Sequential
+        Model to fit.
+    train_tensors: array
+        Training features.
+    train_targets: array
+        Training targets.
+    valid_tensors: array
+        Validation features.
+    valid_targets: array
+        Validation targes.
+    model_file: string
+        Path to store the best model.
+    class_weights: array
+        Array of balanced class weights.
+
+    Returns
+    -------
+    model: Sequential
+        Trained model.
+    """
     from keras.optimizers import SGD
     model.compile(optimizer=SGD(lr=0.0001, momentum=0.9), loss='sparse_categorical_crossentropy', metrics=['sparse_categorical_accuracy'])
     batch_size = 16
@@ -47,8 +94,20 @@ def fit_model_with_generators(model, epochs, model_file, train_generator, valida
           callbacks=[checkpointer], verbose=0)
     return model
 
-# load models from file
 def load_all_models(n_models, folder):
+    """ Load models from file system
+    Parameters
+    ----------
+    n_models: int
+        Number of models to load.
+    folder: string
+        Path to models.
+
+    Returns
+    -------
+    all_models: array
+        Loaded models.
+        """
 	all_models = list()
 	for i in range(n_models):
 		# define filename for this ensemble
@@ -60,10 +119,22 @@ def load_all_models(n_models, folder):
 		print('>loaded %s' % filename)
 	return all_models
 
-# create stacked model input dataset as outputs from the ensemble
 def stacked_dataset(members, inputX):
-  stackX = None
-  for model in members:
+    """ Stack predictions from models to create a new dataset
+    Parameters
+    ----------
+    members: array
+        Model list.
+    inputX: array
+        Feature list to predict.
+
+    Returns
+    -------
+    stackX: array
+        dataset created from predictions.
+    """
+    stackX = None
+    for model in members:
     # make prediction
     yhat = model.predict(inputX, verbose=0)
     # stack predictions into [rows, members, probabilities]
@@ -71,29 +142,82 @@ def stacked_dataset(members, inputX):
       stackX = yhat
     else:
       stackX = dstack((stackX, yhat))
-  # flatten predictions to [rows, members x probabilities]
-  stackX = stackX.reshape((stackX.shape[0], stackX.shape[1]*stackX.shape[2]))
-  return stackX
+    # flatten predictions to [rows, members x probabilities]
+    stackX = stackX.reshape((stackX.shape[0], stackX.shape[1]*stackX.shape[2]))
+    return stackX
 
 # fit a model based on the outputs from the ensemble members
 def fit_stacked_model(members, inputX, inputy):
-  # create dataset using ensemble
-  stackedX = stacked_dataset(members, inputX)
-  # fit standalone model
-  model = LogisticRegression(random_state = 9034)
-  model.fit(stackedX, inputy)
-  return model
+    """ Fit meta model from stacked dataset.
+    Parameters
+    ----------
+    members: array
+        Model list.
+    inputX: array
+        Feature list to predict.
+    inputy: array
+        Targets.
+    Returns
+    -------
+    model: Model
+        Trained meta model.
+    """
+    # create dataset using ensemble
+    stackedX = stacked_dataset(members, inputX)
+    # fit standalone model
+    model = LogisticRegression(random_state = 9034)
+    model.fit(stackedX, inputy)
+    return model
 
 def tune_stacked_model(clf, parameters, members, X_train, y_train, X_test, y_test):
-    # create dataset using ensemble
-  X_train = stacked_dataset(members, X_train)
-  X_test = stacked_dataset(members, X_test)
+    """ Tune meta model.
+    Parameters
+    ----------
+    clf: Model
+        Meta model to tune
+    parameters: Dictionary
+        Hyperparameters for tuning the meta model
+    members: array
+        Model list.
+    X_train: array
+        Training features.
+    y_train: array
+        Training targets.
+    X_test: array
+        Test features.
+    y_test: array
+        Test targets.
+    Returns
+    -------
+    best_clf: Model
+        Model with best score.
+    default_score: float
+        Score before tuning the meta model.
+    tuned_score: Model
+        Score after tuning the meta model.
+    """
+    X_train = stacked_dataset(members, X_train)
+    X_test = stacked_dataset(members, X_test)
 
-  best_clf, default_score, tuned_score = model_utils.tune_classifier(clf, parameters, X_train, X_test, y_train, y_test)
-  return best_clf, default_score, tuned_score
+    best_clf, default_score, tuned_score = model_utils.tune_classifier(clf, parameters, X_train, X_test, y_train, y_test)
+    return best_clf, default_score, tuned_score
 
 # make a prediction with the stacked model
 def stacked_prediction(members, model, inputX):
+    """ Predict from meta model
+    Parameters
+    ----------
+    model: Model
+        Meta model
+    members: array
+        Model list.
+    inputX: array
+        Feature list to run predicions.
+    Returns
+    -------
+    yhat: array
+        Meta model's predicions.
+    """
 	# create dataset using ensemble
 	stackedX = stacked_dataset(members, inputX)
 	# make a prediction
