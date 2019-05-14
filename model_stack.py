@@ -107,7 +107,7 @@ def load_all_models(n_models, folder):
     -------
     all_models: array
         Loaded models.
-        """
+    """
 	all_models = list()
 	for i in range(n_models):
 		# define filename for this ensemble
